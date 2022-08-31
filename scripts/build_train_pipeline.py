@@ -1,4 +1,5 @@
 
+from ensurepip import version
 import azureml
 import os
 import sklearn
@@ -133,11 +134,23 @@ def main():
     print("Step Register created")
 
     steps = [step1,step2,step3]
-    pipeline1 = Pipeline(workspace=ws,steps=steps)
+    train_pipeline = Pipeline(workspace=ws,steps=steps)
     
-    run_exp = Experiment(workspace=ws, name="RF-BreastCancer-Pipeline")
+    # run_exp = Experiment(workspace=ws, name="RF-BreastCancer-Pipeline")
 
-    run_exp.submit(pipeline1,regenerate_ouputs=False)
+    # run_exp.submit(pipeline1,regenerate_ouputs=False)
+
+    train_pipeline._set_experiment_name = "RF-BreastCancer-Pipeline"
+    train_pipeline.validate()
+    published_pipeline = train_pipeline.publish(
+        name="cancer-Training-Pipeline",
+        description="Model training/retraining pipeline",
+        version = 3)
+        
+    print(f"Published pipeline: {published_pipeline.name}")
+    print(f"for build {published_pipeline.version}")
+
+
 
 
 
