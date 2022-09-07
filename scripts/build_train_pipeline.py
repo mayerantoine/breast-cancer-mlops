@@ -1,5 +1,4 @@
 
-from ensurepip import version
 import azureml
 import os
 import sklearn
@@ -27,14 +26,17 @@ def get_aml_compute(workspace):
         aml_compute = ComputeTarget(workspace = workspace,name= clustername)
         print("Find the existing cluster")
     except ComputeTargetException:
-        print("Cluster not find - Creating cluster")
+        print("Cluster not find - Creating cluster.....")
         is_new_cluster = True
         compute_config = AmlCompute.provisioning_configuration(vm_size='STANDARD_D2_V2',
+                                                                vnet_name='csels-cdh-dev-vnet',
+                                                                vnet_resourcegroup_name='CSELS-CDH-DEV',
+                                                                subnet_name='cdh-azml-dev-snet',
                                                             max_nodes=4)
         aml_compute = ComputeTarget.create(workspace, clustername, compute_config)
 
     aml_compute.wait_for_completion(show_output=True)
-    
+        
     return aml_compute
 
 
@@ -113,7 +115,7 @@ def main():
     print("Step Prepare created")
 
     step2 = PythonScriptStep(name="train_step",
-                         script_name="train2.py", 
+                         script_name="train_step.py", 
                          arguments=["--train",train_data,"--test",test_data,"--model_file",model_file],
                          inputs=[train_data,test_data],
                          outputs=[model_file],
@@ -134,23 +136,11 @@ def main():
     print("Step Register created")
 
     steps = [step1,step2,step3]
-    train_pipeline = Pipeline(workspace=ws,steps=steps)
+    pipeline1 = Pipeline(workspace=ws,steps=steps)
     
-    # run_exp = Experiment(workspace=ws, name="RF-BreastCancer-Pipeline")
+    run_exp = Experiment(workspace=ws, name="RF-BreastCancer-Pipeline")
 
-    # run_exp.submit(pipeline1,regenerate_ouputs=False)
-
-    train_pipeline._set_experiment_name = "RF-BreastCancer-Pipeline"
-    train_pipeline.validate()
-    published_pipeline = train_pipeline.publish(
-        name="cancer-Training-Pipeline",
-        description="Model training/retraining pipeline",
-        version = 3)
-        
-    print(f"Published pipeline: {published_pipeline.name}")
-    print(f"for build {published_pipeline.version}")
-
-
+    run_exp.submit(pipeline1,regenerate_ouputs=False)
 
 
 
