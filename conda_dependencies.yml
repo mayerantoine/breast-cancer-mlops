@@ -1,12 +1,10 @@
-
-channels:
-- conda-forge
+name: mlopspython
 dependencies:
 - python=3.8
+- matplotlib
+- pandas
+- numpy
 - pip:
   - azureml-defaults
-  - matplotlib
-  - pandas
-  - argparse
   - joblib
   - scikit-learn

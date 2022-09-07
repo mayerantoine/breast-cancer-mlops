@@ -1,33 +1,28 @@
-
-import azureml
 import os
+import azureml
 import sklearn
 from azureml.core import  Workspace
 from azureml.pipeline.core.graph import PipelineParameter
 from azureml.pipeline.steps import PythonScriptStep
 from azureml.pipeline.core import Pipeline, PipelineData
-from azureml.core import Workspace, Dataset, Datastore
-from azureml.core.runconfig import RunConfiguration,DockerConfiguration
+from azureml.core import Workspace, Dataset
+from azureml.core.runconfig import RunConfiguration
 from azureml.core.runconfig import DEFAULT_CPU_IMAGE
 from azureml.core.conda_dependencies import CondaDependencies
-from azureml.core import Workspace, Experiment, Run
+from azureml.core import Workspace, Experiment
 from azureml.core.compute import ComputeTarget, AmlCompute
 from azureml.core.compute_target import ComputeTargetException
-from azureml.core import ScriptRunConfig, Environment
-from azureml.widgets import RunDetails
-from azureml.data.data_reference import DataReference
-from azureml.pipeline.core import Pipeline, PipelineData
-
 
 def get_aml_compute(workspace):
+    """
+     Retreive or Create compute for training
+    """
     clustername = 'StandardDS12CPU'
-    is_new_cluster = False
     try:
         aml_compute = ComputeTarget(workspace = workspace,name= clustername)
         print("Find the existing cluster")
     except ComputeTargetException:
         print("Cluster not find - Creating cluster.....")
-        is_new_cluster = True
         compute_config = AmlCompute.provisioning_configuration(vm_size='STANDARD_D2_V2',
                                                                 vnet_name='csels-cdh-dev-vnet',
                                                                 vnet_resourcegroup_name='CSELS-CDH-DEV',
@@ -41,6 +36,9 @@ def get_aml_compute(workspace):
 
 
 def get_environment():
+    """
+    Create the environment for training and inference
+    """
     # create a new runconfig object
     run_config = RunConfiguration()
 
@@ -52,16 +50,21 @@ def get_environment():
 
     # specify CondaDependencies obj
     run_config.environment.python.conda_dependencies = CondaDependencies.create(
-        conda_packages=['pandas','numpy'],
+        python_version='3.8',
+        conda_packages=['pandas','numpy','matplotlib'],
         pip_packages=['scikit-learn','joblib','azureml-sdk'],
         pin_sdk_version=False)
 
     return run_config
 
+
 def main():
+    """
+    Build and submit pipeline
+    """
     
     print("Azure ML SDK Version: ", azureml.core.VERSION)
-    print(sklearn.__version__)
+    print("sklearn version: ",sklearn.__version__)
 
     # Get workspace 
 
@@ -78,14 +81,12 @@ def main():
     # Load and register the raw data 
     ## TODO We will need to change this as a parameter for new data
     cur_dir = os.getcwd()
-    parent_dir = os.path.dirname(cur_dir)
     src_dir = os.path.join(cur_dir,'data')
 
     print(src_dir)
 
     data_store = ws.get_default_datastore()
     data_store.upload(src_dir=src_dir,target_path='cancer_data',overwrite=True,show_progress=True)
-    
     ds_raw = Dataset.Tabular.from_delimited_files(path=data_store.path('cancer_data/cancer_data.csv'))
     ds_raw.register(workspace=ws,name='raw_data')
 
@@ -96,19 +97,17 @@ def main():
     test_data = PipelineData("test_cancer_data",datastore=data_store).as_dataset()
     model_file = PipelineData("model_file",datastore=data_store)
 
-
     # Create Python Envirronment 
     run_config = get_environment()
 
-
-    # 
+    # Prepare step
     source_directory ='./scripts'
     step1 = PythonScriptStep(name="prepare_step",
                             script_name="prepare.py", 
                             arguments=["--input_data",ds_raw,"--train",train_data,"--test",test_data],
                             inputs=[ds_raw],
                             outputs=[train_data,test_data],
-                            compute_target=aml_compute, 
+                            compute_target = aml_compute, 
                             runconfig=run_config,
                             source_directory=source_directory,
                             allow_reuse=True)

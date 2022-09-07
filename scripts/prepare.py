@@ -4,8 +4,13 @@ import os
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+from azureml.core import Run
+
 
 def main():
+    """
+    Split raw data and encode label
+    """
 
     parser = argparse.ArgumentParser("prepare")
 
@@ -19,7 +24,7 @@ def main():
     
     run = Run.get_context()
     ws = run.experiment.workspace
-    ds_tr = ws.get_default_datastore()
+    # ds_tr = ws.get_default_datastore()
 
 
     df = run.input_datasets['raw_data'].to_pandas_dataframe()
@@ -47,15 +52,15 @@ def main():
     test = np.column_stack([x_test,y_test])
    
     # Write the model to file.
-    train_path = "./data/train/"
-    test_path = "./data/test/"
+    # train_path = "./data/train/"
+    # test_path = "./data/test/"
 
     os.makedirs(args.train, exist_ok=True)
     os.makedirs(args.test, exist_ok=True)
     print("Saving the split")
 
     np.savetxt(os.path.join(args.train,"train.csv"), train, delimiter=",")
-    np.savetxt(os.path.join(args.test,"test.csv"), train, delimiter=",")
+    np.savetxt(os.path.join(args.test,"test.csv"), test, delimiter=",")
   
 
  
