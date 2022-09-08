@@ -6,10 +6,11 @@ import argparse
 
 
 def main():
+  ## TODO change version as parameter
 
     pipelinename = 'cancer-Training-Pipeline'
     experiment_name = "RF-BreastCancer-Pipeline"
-    p_version = 3
+    p_version = '3'
 
     ws = Workspace.from_config()
     

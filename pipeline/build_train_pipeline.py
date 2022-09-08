@@ -2,14 +2,13 @@ import os
 import azureml
 import sklearn
 from azureml.core import  Workspace
-from azureml.pipeline.core.graph import PipelineParameter
 from azureml.pipeline.steps import PythonScriptStep
 from azureml.pipeline.core import Pipeline, PipelineData
 from azureml.core import Workspace, Dataset
 from azureml.core.runconfig import RunConfiguration
 from azureml.core.runconfig import DEFAULT_CPU_IMAGE
 from azureml.core.conda_dependencies import CondaDependencies
-from azureml.core import Workspace, Experiment
+from azureml.core import Workspace
 from azureml.core.compute import ComputeTarget, AmlCompute
 from azureml.core.compute_target import ComputeTargetException
 
@@ -88,7 +87,10 @@ def main():
     data_store = ws.get_default_datastore()
     data_store.upload(src_dir=src_dir,target_path='cancer_data',overwrite=True,show_progress=True)
     ds_raw = Dataset.Tabular.from_delimited_files(path=data_store.path('cancer_data/cancer_data.csv'))
-    ds_raw.register(workspace=ws,name='raw_data')
+    ds_raw.register(workspace=ws,name='raw_data',
+                description="diabetes training data",
+                tags={"format": "CSV"},
+                create_new_version=True,)
 
     # Create PipelineData
 
@@ -101,7 +103,7 @@ def main():
     run_config = get_environment()
 
     # Prepare step
-    source_directory ='./scripts'
+    source_directory ='./pipeline'
     step1 = PythonScriptStep(name="prepare_step",
                             script_name="prepare.py", 
                             arguments=["--input_data",ds_raw,"--train",train_data,"--test",test_data],
@@ -135,12 +137,17 @@ def main():
     print("Step Register created")
 
     steps = [step1,step2,step3]
-    pipeline1 = Pipeline(workspace=ws,steps=steps)
-    
-    run_exp = Experiment(workspace=ws, name="RF-BreastCancer-Pipeline")
+    train_pipeline = Pipeline(workspace=ws,steps=steps)
+    train_pipeline.validate()
 
-    run_exp.submit(pipeline1,regenerate_ouputs=False)
+    pipelinename = 'cancer-Training-Pipeline'
+          
+    published_pipeline = train_pipeline.publish(
+        name=pipelinename,
+        description="Model training/retraining pipeline" )
 
+    print(f"Published pipeline: {published_pipeline.name}")
+    print(f"for build {published_pipeline.version}")
 
 
 if __name__ == '__main__':

@@ -8,3 +8,4 @@ dependencies:
   - azureml-defaults
   - joblib
   - scikit-learn
+  - azureml-sdk==1.27.*
