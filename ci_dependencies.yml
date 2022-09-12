@@ -1,5 +1,5 @@
-# dependencies for training and pipeline steps compute
-name: mlopspython
+# dependencies for local machine or agent
+name: mlopspython_ci
 dependencies:
 - python=3.8
 - pandas
@@ -9,3 +9,6 @@ dependencies:
   - joblib
   - scikit-learn
   - azureml-sdk==1.27.*
+  - pytest
+  - ipykernel
+

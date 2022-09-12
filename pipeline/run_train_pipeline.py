@@ -35,8 +35,12 @@ def main():
     # TODO we need to use the Pipeline Endpoint
     if len(matched_pipes) == 1 :
       published_pipeline = matched_pipes[0]
+      print("published pipeline id is", published_pipeline.id)
       run_exp = Experiment(workspace=ws, name= experiment_name)
       run_exp.submit(published_pipeline,regenerate_ouputs=False)
+    elif len(matched_pipes) == 0:
+      published_pipeline = None
+      raise KeyError(f"Unable to find a published pipeline for this build")
 
     
 

@@ -32,7 +32,7 @@ def main():
     aml_cluster.wait_for_completion(show_output=True)
     
     # get environment 
-    sklearn_env = Environment.from_conda_specification(name='sklearn-env', file_path='conda_dependencies.yml')
+    sklearn_env = Environment.from_conda_specification(name='mlopspython', file_path='conda_dependencies.yml')
     sklearn_env.docker.enabled = True
 
 
@@ -51,10 +51,13 @@ def main():
 
     # submit training
     # TODO: Submit your experiment
+    print("Submit Experiment")
     run = exp.submit(estimator)
     #run.wait_for_completion(show_output=True, 
     #                        wait_post_processing=False, 
     #                        raise_on_error=True)
+
+    print("Experiment submitted")
     
 
 if __name__ =='__main__':

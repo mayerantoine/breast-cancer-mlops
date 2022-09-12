@@ -19,19 +19,21 @@ def main():
     model = Model(workspace=ws,name='breast-cancer',version=8)
 
     # TODO Create yaml File and preferably Docker
-    environment = Environment('breast_cancer_scoring_env')
-    environment.python.conda_dependencies = CondaDependencies.create(
-                python_version='3.8',
-                conda_packages=[
-                'pip==20.2.4'],
-                pip_packages=[
-                'azureml-defaults',
-                'pandas',
-                'inference-schema[numpy-support]',
-                'joblib',
-                'numpy',
-                'scikit-learn'
-            ])
+    environment = Environment.from_conda_specification(name='mlopspython_scoring', file_path='./conda_dependencies_scoring.yml')
+    environment.docker.enabled = True
+    #environment = Environment('mlopspython_scoring')
+    #environment.python.conda_dependencies = CondaDependencies.create(
+    #            python_version='3.8',
+    #            conda_packages=[
+    #            'pip==20.2.4'],
+    #            pip_packages=[
+    #            'azureml-defaults',
+    #            'pandas',
+    #            'inference-schema[numpy-support]',
+    #            'joblib',
+    #            'numpy',
+    #            'scikit-learn'
+    #        ])
 
 
     inference_config = InferenceConfig(entry_script='./scoring/score.py', environment=environment)
@@ -49,8 +51,9 @@ def main():
                             deployment_config, 
                             aks_target)
     aks_service.wait_for_deployment(show_output = True)
-    print(aks_service.state)
-    print(aks_service.get_logs())
+    print("Service state: ", aks_service.state)
+    # print(aks_service.get_logs())
+    
 
 if __name__ == '__main__':
     main()

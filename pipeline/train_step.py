@@ -16,6 +16,7 @@ def main():
     parser.add_argument("--train", type=str, help="train data")
     parser.add_argument("--test", type=str, help="test data")
     parser.add_argument("--model_file", type=str, help="model file")
+    parser.add_argument("--model_name",type=str,help="model name",default='cancer_model.pkl')
     
     args = parser.parse_args()
     
@@ -25,6 +26,7 @@ def main():
 
     print(args.train)
     print(args.test)
+    print(args.model_name)
 
     train = pd.read_csv(args.train+"/train.csv")
     test = pd.read_csv(args.test+"/test.csv")
@@ -65,9 +67,9 @@ def main():
     # Write the model to file.
     # model_path = "./outputs/cancer_model.pkl"
     os.makedirs(args.model_file, exist_ok=True)
-    joblib.dump(rf, args.model_file+"/cancer_model.pkl")
+    joblib.dump(rf, args.model_file+f"/{args.model_name}")
 
-    print('Saving the model to {}'.format(args.model_file+"/cancer_model.pkl"))
+    print('Saving the model to {}'.format(args.model_file+f"/{args.model_name}"))
 
     run.complete()
     

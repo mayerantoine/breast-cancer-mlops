@@ -48,11 +48,12 @@ def get_environment():
     run_config.environment.python.user_managed_dependencies = False
 
     # specify CondaDependencies obj
-    run_config.environment.python.conda_dependencies = CondaDependencies.create(
-        python_version='3.8',
-        conda_packages=['pandas','numpy','matplotlib'],
-        pip_packages=['scikit-learn','joblib','azureml-sdk'],
-        pin_sdk_version=False)
+    run_config.environment.from_conda_specification(name='mlopspython',file_path='./conda_dependencies.yml')
+    #run_config.environment.python.conda_dependencies = CondaDependencies.create(
+    #    python_version='3.8',
+    #    conda_packages=['pandas','numpy'],
+    #    pip_packages=['scikit-learn','joblib','azureml-sdk'],
+    #    pin_sdk_version=False)
 
     return run_config
 

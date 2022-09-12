@@ -1,0 +1,12 @@
+# dependencies for inference compute
+name: mlopspython_scoring
+dependencies:
+- python=3.8
+- pip=20.2.4
+- pip:
+  - azureml-defaults
+  - pandas
+  - numpy
+  - joblib
+  - scikit-learn
+  - inference-schema[numpy-support]
