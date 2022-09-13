@@ -32,7 +32,7 @@ def main():
     aml_cluster.wait_for_completion(show_output=True)
     
     # get environment 
-    sklearn_env = Environment.from_conda_specification(name='mlopspython', file_path='conda_dependencies.yml')
+    sklearn_env = Environment.from_conda_specification(name='breast_cancer_training_env', file_path='conda_dependencies.yml')
     sklearn_env.docker.enabled = True
 
 

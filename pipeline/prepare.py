@@ -1,4 +1,3 @@
-
 import argparse
 import os
 import numpy as np
@@ -21,9 +20,9 @@ def main():
     args = parser.parse_args()
 
     print("train args:",args.train)
-    
+
     run = Run.get_context()
-    ws = run.experiment.workspace
+    # workspace = run.experiment.workspace
     # ds_tr = ws.get_default_datastore()
 
 
@@ -50,7 +49,7 @@ def main():
 
     train = np.column_stack([x_train,y_train])
     test = np.column_stack([x_test,y_test])
-   
+
     # Write the model to file.
     # train_path = "./data/train/"
     # test_path = "./data/test/"
@@ -61,10 +60,7 @@ def main():
 
     np.savetxt(os.path.join(args.train,"train.csv"), train, delimiter=",")
     np.savetxt(os.path.join(args.test,"test.csv"), test, delimiter=",")
-  
 
- 
+
 if __name__ =='__main__':
     main()
-
-

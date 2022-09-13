@@ -9,11 +9,10 @@ def main():
     Register model to AML
     """
 
-
-    parser = argparse.ArgumentParser("register")  
+    parser = argparse.ArgumentParser("register")
     parser.add_argument("--model_file", type=str, help="model file")
     args = parser.parse_args()
-    
+
     run = Run.get_context()
     ws = run.experiment.workspace
     # ds_tr = ws.get_default_datastore()
@@ -32,4 +31,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

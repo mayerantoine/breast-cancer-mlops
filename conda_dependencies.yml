@@ -1,10 +1,14 @@
 # dependencies for training and pipeline steps compute
-name: mlopspython
+name: breast_cancer_training_env
+channels:
+  - anaconda
+  - conda-forge
 dependencies:
 - python=3.8
-- pandas
-- numpy
+- pip
 - pip:
+  - pandas
+  - numpy 
   - azureml-defaults
   - joblib
   - scikit-learn
