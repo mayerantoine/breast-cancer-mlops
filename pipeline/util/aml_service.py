@@ -1,25 +1,22 @@
 
 from azureml.core import  Environment
-from azureml.core.runconfig import RunConfiguration
 from azureml.core.runconfig import DEFAULT_CPU_IMAGE
-from azureml.core.conda_dependencies import CondaDependencies
 from azureml.core.compute import ComputeTarget, AmlCompute
 from azureml.core.compute_target import ComputeTargetException
-from azureml.core.runconfig import DEFAULT_CPU_IMAGE, DEFAULT_GPU_IMAGE
 from util.en_variables import Env
 
 def get_aml_compute(workspace,clustername,vm_size,resource_grp, vnet_name,subnet_name,max_nodes):
     """
      Retreive or Create compute for training
     """
-    clustername = 'StandardDS12CPU'
+
     try:
-        aml_compute = ComputeTarget(workspace = workspace,name= clustername)
+        aml_compute = AmlCompute(workspace = workspace, name= clustername)
         print("Find the existing cluster")
     except ComputeTargetException:
         print("Cluster not find - Creating cluster.....")
         compute_config = AmlCompute.provisioning_configuration(vm_size=vm_size,
-                                                                vnet_name=subnet_name,
+                                                                vnet_name=vnet_name,
                                                                 vnet_resourcegroup_name=resource_grp,
                                                                 subnet_name=subnet_name,
                                                             max_nodes=max_nodes)
